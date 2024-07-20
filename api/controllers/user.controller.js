@@ -1,3 +1,3 @@
 export const test = (req, res) => {
-    res.json('Api router is working..');
-}
+  res.json("Api router is working..");
+};
