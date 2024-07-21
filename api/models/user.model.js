@@ -11,7 +11,6 @@ const userSchema = new mongoose.Schema(
     },
     contact: {
       type: Number,
-      unique: true,
     },
     email: {
       type: String,
