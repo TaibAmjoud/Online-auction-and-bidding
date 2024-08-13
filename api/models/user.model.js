@@ -23,8 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
-      default:
-        "https://static-00.iconduck.com/assets.00/avatar-default-symbolic-icon-479x512-n8sg74wg.png",
+      default: "https://cdn-icons-png.flaticon.com/512/6388/6388000.png",
     },
   },
   { timestamps: true }
