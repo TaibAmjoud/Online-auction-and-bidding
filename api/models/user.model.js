@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       default:
-        "https://www.google.com/url?sa=i&url=https%3A%2F%2Fpixabay.com%2Fvectors%2Fblank-profile-picture-mystery-man-973460%2F&psig=AOvVaw3QqABd6S53Gy6S507X0HGQ&ust=1721604761264000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCIijktXjtocDFQAAAAAdAAAAABAE",
+        "https://static-00.iconduck.com/assets.00/avatar-default-symbolic-icon-479x512-n8sg74wg.png",
     },
   },
   { timestamps: true }
