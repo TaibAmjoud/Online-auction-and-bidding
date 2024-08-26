@@ -8,17 +8,28 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function CreateListing() {
+  const { currentUser } = useSelector((state) => state.user);
   const [startDate, setStartDate] = useState(new Date());
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
-
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     imageUrls: [],
+    name: "",
+    description: "",
+    reservedPrice: 0,
+    auctionEndingDate: "",
+    type: "",
   });
+
   const [imageUploadError, setImageUploadError] = useState(false);
   console.log(formData);
   const handelImageSubmit = (e) => {
@@ -81,12 +92,64 @@ export default function CreateListing() {
     });
   };
 
+  const handleChange = (e) => {
+    if (
+      e.target.id === "Art/Antiques" ||
+      e.target.id === "Vehicles" ||
+      e.target.id === "Jewelry/Watches" ||
+      e.target.id === "Technology" ||
+      e.target.id === "Immobilier"
+    ) {
+      setFormData({
+        ...formData,
+        type: e.target.id,
+      });
+    }
+    if (
+      e.target.type === "number" ||
+      e.target.type === "text" ||
+      e.target.type === "textarea"
+    ) {
+      setFormData({
+        ...formData,
+        [e.target.id]: e.target.value,
+      });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      setError(false);
+      const res = await fetch("/api/listing/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          userRef: currentUser._id,
+        }),
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (data.success === false) {
+        setError(data.message);
+      }
+      navigate(`/listing/${data._id}`)
+    } catch (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="p-3 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">
         Create a Listing
       </h1>
-      <form className="flex flex-col sm:flex-row gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
         <div className="flex flex-col gap-4 flex-1">
           <input
             type="text"
@@ -96,6 +159,8 @@ export default function CreateListing() {
             maxLength="62"
             minLength="10"
             required
+            onChange={handleChange}
+            value={formData.name}
           />
           <textarea
             type="text"
@@ -103,35 +168,69 @@ export default function CreateListing() {
             className="border p-3 rounded-lg"
             id="description"
             required
+            onChange={handleChange}
+            value={formData.description}
           />
           <div className="flex gap-6 flex-wrap">
             <div className="flex gap-2">
-              <input type="checkbox" id="Art/Antiques" className="w-5" />
+              <input
+                type="checkbox"
+                id="Art/Antiques"
+                className="w-5"
+                onChange={handleChange}
+                checked={formData.type === "Art/Antiques"}
+              />
               <span>Art/Antiques</span>
             </div>
             <div className="flex gap-2">
-              <input type="checkbox" id="Vehicles" className="w-5" />
+              <input
+                type="checkbox"
+                id="Vehicles"
+                className="w-5"
+                onChange={handleChange}
+                checked={formData.type === "Vehicles"}
+              />
               <span>Vehicles</span>
             </div>
             <div className="flex gap-2">
-              <input type="checkbox" id="Jewelry/Watches" className="w-5" />
+              <input
+                type="checkbox"
+                id="Jewelry/Watches"
+                className="w-5"
+                onChange={handleChange}
+                checked={formData.type === "Jewelry/Watches"}
+              />
               <span>Jewelry/Watches</span>
             </div>
             <div className="flex gap-2">
-              <input type="checkbox" id="Technology" className="w-5" />
+              <input
+                type="checkbox"
+                id="Technology"
+                className="w-5"
+                onChange={handleChange}
+                checked={formData.type === "Technology"}
+              />
               <span>Technology</span>
             </div>
             <div className="flex gap-2">
-              <input type="checkbox" id="immobilier" className="w-5" />
+              <input
+                type="checkbox"
+                id="immobilier"
+                className="w-5"
+                onChange={handleChange}
+                checked={formData.type === "immobilier"}
+              />
               <span>Immobilier</span>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <input
               type="number"
-              id=""
+              id="reservedPrice"
               required
               className="p-3 border border-gray-300 rounded-lg"
+              onChange={handleChange}
+              value={formData.reservedPrice}
             />
             <div className="flex flex-col items-center">
               <p>Reserved Price</p>
@@ -141,10 +240,19 @@ export default function CreateListing() {
           <div className="flex flex-center items-center gap-2">
             <DatePicker
               selected={startDate}
-              onChange={(date) => setStartDate(date)}
+              onChange={(date) => {
+                setStartDate(date);
+                setFormData({
+                  ...formData,
+                  auctionEndingDate: date,
+                });
+              }}
+              type="date"
+              id="auctionEndingDate"
               showTimeSelect
               dateFormat="Pp"
               className="p-3 border border-gray-300 rounded-lg"
+              value={formData.auctionEndingDate}
             />
             <p>Auction End Date </p>
           </div>
@@ -195,9 +303,13 @@ export default function CreateListing() {
                 </button>
               </div>
             ))}
-          <button className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
-            Create Listing
+          <button
+            disabled={loading || uploading}
+            className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
+          >
+            {loading ? "Creating..." : "Create listing"}
           </button>
+          {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
       </form>
     </main>

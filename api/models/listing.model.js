@@ -6,7 +6,7 @@ const listingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    pictures: {
+    imageUrls: {
       type: Array,
       required: true,
     },
@@ -30,12 +30,8 @@ const listingSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    duration: {
-      type: Number,
-      required: true,
-    },
-    offer: {
-      type: Boolean,
+    auctionEndingDate: {
+      type: Date,
       required: true,
     },
   },
