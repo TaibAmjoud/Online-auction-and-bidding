@@ -2,15 +2,19 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Countdown from "react-countdown";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { useSelector } from "react-redux";
 import SwiperCore from "swiper";
 import { Navigation } from "swiper/modules";
 import "swiper/css/bundle";
+import Contact from "../components/Contact";
 
 export default function Listing() {
   SwiperCore.use([Navigation]);
+  const { currentUser } = useSelector((state) => state.user);
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [contact, setContact] = useState(false);
   const params = useParams();
 
   const Completionist = () => (
@@ -74,6 +78,12 @@ export default function Listing() {
                 <Completionist />
               </Countdown>
             </p>
+            {currentUser && listing.userRef !== currentUser._id && !contact && (
+              <button onClick={() => setContact(true)} className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-65 p-3">
+                Contact the owner
+              </button>
+            )}
+            {contact && <Contact listing={listing}/>}
           </div>
         </div>
       )}
