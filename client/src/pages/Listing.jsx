@@ -7,14 +7,18 @@ import SwiperCore from "swiper";
 import { Navigation } from "swiper/modules";
 import "swiper/css/bundle";
 import Contact from "../components/Contact";
+import Bid from "../components/Bid";
 
 export default function Listing() {
   SwiperCore.use([Navigation]);
   const { currentUser } = useSelector((state) => state.user);
   const [listing, setListing] = useState(null);
+  const [biding, setBiding] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [contact, setContact] = useState(false);
+  const [bid, setBid] = useState(false);
+
   const params = useParams();
 
   const Completionist = () => (
@@ -35,6 +39,7 @@ export default function Listing() {
         setListing(data);
         setLoading(false);
         setError(false);
+        //console.log(data);
       } catch (error) {
         setError(true);
         setLoading(false);
@@ -42,6 +47,33 @@ export default function Listing() {
     };
     fetchListing();
   }, [params.listingId]);
+
+  useEffect(() => {
+    const fetchBiding = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/biding/get/${params.listingId}`);
+        const data = await res.json();
+        if (data.success === false) {
+          setError(true);
+          setLoading(false);
+          return;
+        }
+        setBiding(data || []);
+        setLoading(false);
+        setError(false);
+        //console.log(data);
+      } catch (error) {
+        setError(true);
+        setLoading(false);
+      }
+    };
+    fetchBiding();
+  }, [params.listingId]);
+
+  const highestBid =
+    biding.length > 0 ? Math.max(...biding.map((bid) => bid.bidingPrice)) : 0;
+
   return (
     <main>
       {loading && <p className="text-center my-7 text-2xl">Loading...</p>}
@@ -70,6 +102,12 @@ export default function Listing() {
               {listing.description}
             </p>
             <p className="text-xl flex gap-2">
+              <span className="font-semibold text-black">
+                Current auction highest price :{" "}
+                <span className="text-green-700">{highestBid} €</span>
+              </span>
+            </p>
+            <p className="text-xl flex gap-2">
               <span className="font-semibold text-black">Time left : </span>
               <Countdown
                 className="font-semibold text-red-700"
@@ -78,6 +116,15 @@ export default function Listing() {
                 <Completionist />
               </Countdown>
             </p>
+            {currentUser && listing.userRef !== currentUser._id && !bid && (
+              <button
+                onClick={() => setBid(true)}
+                className="bg-green-700 text-white rounded-lg uppercase hover:opacity-65 p-3"
+              >
+                Participate in this Auction
+              </button>
+            )}
+            {bid && <Bid listing={listing} currentHighestBid={highestBid} />}
             {currentUser && listing.userRef !== currentUser._id && !contact && (
               <button
                 onClick={() => setContact(true)}
