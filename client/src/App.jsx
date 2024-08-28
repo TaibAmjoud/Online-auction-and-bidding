@@ -9,6 +9,7 @@ import CreateListing from "./pages/CreateListing";
 import Listing from "./pages/Listing";
 import Footer from "./components/Footer";
 import Search from "./pages/Search";
+import About from "./pages/About";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/sign-in" element={<Signin />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/search" element={<Search />} />
+        <Route path="/about" element={<About />} />
         <Route path="/listing/:listingId" element={<Listing />} />
         <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />
