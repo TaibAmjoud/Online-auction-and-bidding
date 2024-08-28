@@ -59,7 +59,7 @@ export default function Listing() {
           </Swiper>
           <div className="flex flex-col max-w-4xl mx-auto p-3 my-7 gap-6">
             <p className="text-2xl font-semibold">
-              {listing.name} - {listing.reservedPrice}€
+              {listing.name} - {listing.reservedPrice.toLocaleString("en-US")}€
             </p>
             <p className="text-slate-800">
               <span className="font-semibold text-black">Type - </span>
