@@ -12,11 +12,12 @@ export const createBiding = async (req, res, next) => {
 
 export const getBid = async (req, res, next) => {
   try {
-    const highestBid = await Biding.find()
+    const highestBid = await Biding.find({ itemRef: req.params.id })
       .select("bidingPrice")
       .sort({ bidingPrice: -1 })
       .limit(1);
-    res.status(200).json(highestBid);
+
+    return res.status(200).json(highestBid);
   } catch (error) {
     next(error);
   }
