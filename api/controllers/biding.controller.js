@@ -9,3 +9,15 @@ export const createBiding = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getBid = async (req, res, next) => {
+  try {
+    const highestBid = await Biding.find()
+      .select("bidingPrice")
+      .sort({ bidingPrice: -1 })
+      .limit(1);
+    res.status(200).json(highestBid);
+  } catch (error) {
+    next(error);
+  }
+};
