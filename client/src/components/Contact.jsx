@@ -21,7 +21,6 @@ export default function Contact({ listing }) {
     };
     fetchOwner();
   }, [listing.userRef]);
-
   return (
     <>
       {owner && (

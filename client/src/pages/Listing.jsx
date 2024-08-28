@@ -46,7 +46,7 @@ export default function Listing() {
     <main>
       {loading && <p className="text-center my-7 text-2xl">Loading...</p>}
       {listing && !loading && !error && (
-        <div className="mt-3">
+        <div className="mt-3 mb-36">
           <Swiper navigation>
             {listing.imageUrls.map((url) => (
               <SwiperSlide key={url}>
@@ -59,7 +59,7 @@ export default function Listing() {
           </Swiper>
           <div className="flex flex-col max-w-4xl mx-auto p-3 my-7 gap-6">
             <p className="text-2xl font-semibold">
-              {listing.name} - {listing.reservedPrice}€
+              {listing.name} - {listing.reservedPrice.toLocaleString("en-US")}€
             </p>
             <p className="text-slate-800">
               <span className="font-semibold text-black">Type - </span>
@@ -79,11 +79,14 @@ export default function Listing() {
               </Countdown>
             </p>
             {currentUser && listing.userRef !== currentUser._id && !contact && (
-              <button onClick={() => setContact(true)} className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-65 p-3">
+              <button
+                onClick={() => setContact(true)}
+                className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-65 p-3"
+              >
                 Contact the owner
               </button>
             )}
-            {contact && <Contact listing={listing}/>}
+            {contact && <Contact listing={listing} />}
           </div>
         </div>
       )}
