@@ -18,61 +18,97 @@ export default function Listing() {
   const [error, setError] = useState(false);
   const [contact, setContact] = useState(false);
   const [bid, setBid] = useState(false);
-
+  const [reloaded, setReloaded] = useState(false);
+  const [winner, setWinner] = useState(null);
+  const [auctionEnded, setAuctionEnded] = useState(false); // Track auction end state
   const params = useParams();
 
-  const Completionist = () => (
-    <h1 className="text-xl font-semibold text-red-700">The bid is finished!</h1>
-  );
-
   useEffect(() => {
-    const fetchListing = async () => {
+    const fetchListingAndBiding = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/listing/get/${params.listingId}`);
-        const data = await res.json();
-        if (data.success === false) {
+
+        // Fetch listing data
+        const listingRes = await fetch(`/api/listing/get/${params.listingId}`);
+        const listingData = await listingRes.json();
+        if (listingData.success === false) {
           setError(true);
           setLoading(false);
           return;
         }
-        setListing(data);
+        setListing(listingData);
+
+        // Fetch bidding data
+        const bidingRes = await fetch(`/api/biding/get/${params.listingId}`);
+        const bidingData = await bidingRes.json();
+        if (bidingData.success === false) {
+          setError(true);
+          setLoading(false);
+          return;
+        }
+        setBiding(bidingData || []);
         setLoading(false);
+
+        // Determine highest bidder
+        const highestBidDetails = bidingData.reduce(
+          (highest, bid) => {
+            if (bid.bidingPrice > highest.bidingPrice) {
+              return bid;
+            }
+            return highest;
+          },
+          { bidingPrice: 0 }
+        );
+
+        const highestBidder = highestBidDetails.userRef;
+        if (highestBidder) {
+          // Fetch winner data
+          const winnerRes = await fetch(`/api/user/${highestBidder}`);
+          const winnerData = await winnerRes.json();
+          setWinner(winnerData);
+        }
+
         setError(false);
-        //console.log(data);
       } catch (error) {
         setError(true);
         setLoading(false);
       }
     };
-    fetchListing();
-  }, [params.listingId]);
 
-  useEffect(() => {
-    const fetchBiding = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/biding/get/${params.listingId}`);
-        const data = await res.json();
-        if (data.success === false) {
-          setError(true);
-          setLoading(false);
-          return;
-        }
-        setBiding(data || []);
-        setLoading(false);
-        setError(false);
-        //console.log(data);
-      } catch (error) {
-        setError(true);
-        setLoading(false);
-      }
-    };
-    fetchBiding();
+    fetchListingAndBiding();
   }, [params.listingId]);
 
   const highestBid =
     biding.length > 0 ? Math.max(...biding.map((bid) => bid.bidingPrice)) : 0;
+
+  const updateListingAvailability = async () => {
+    if (!reloaded) {
+      try {
+        const res = await fetch(`/api/listing/update/${listing._id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            available: false,
+          }),
+        });
+        const data = await res.json();
+        if (data.success === false) {
+          setError(data.message);
+        } else {
+          setReloaded(true);
+          setListing((prevListing) => ({
+            ...prevListing,
+            available: false,
+          }));
+          setAuctionEnded(true); // Set auction ended state
+        }
+      } catch (error) {
+        setError(error.message);
+      }
+    }
+  };
 
   return (
     <main>
@@ -112,18 +148,25 @@ export default function Listing() {
               <Countdown
                 className="font-semibold text-red-700"
                 date={new Date(listing.auctionEndingDate)}
+                onComplete={updateListingAvailability}
               >
-                <Completionist />
+                <h1 className="text-xl font-semibold text-red-700">
+                  The bid is finished! - the Winner is{" "}
+                  {auctionEnded && winner ? winner.fullname : "No one"}
+                </h1>
               </Countdown>
             </p>
-            {currentUser && listing.userRef !== currentUser._id && !bid && (
-              <button
-                onClick={() => setBid(true)}
-                className="bg-green-700 text-white rounded-lg uppercase hover:opacity-65 p-3"
-              >
-                Participate in this Auction
-              </button>
-            )}
+            {currentUser &&
+              listing.userRef !== currentUser._id &&
+              listing.available &&
+              !bid && (
+                <button
+                  onClick={() => setBid(true)}
+                  className="bg-green-700 text-white rounded-lg uppercase hover:opacity-65 p-3"
+                >
+                  Participate in this Auction
+                </button>
+              )}
             {bid && <Bid listing={listing} currentHighestBid={highestBid} />}
             {currentUser && listing.userRef !== currentUser._id && !contact && (
               <button

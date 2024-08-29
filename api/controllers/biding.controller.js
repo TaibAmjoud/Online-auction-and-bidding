@@ -13,7 +13,6 @@ export const createBiding = async (req, res, next) => {
 export const getBid = async (req, res, next) => {
   try {
     const highestBid = await Biding.find({ itemRef: req.params.id })
-      .select("bidingPrice")
       .sort({ bidingPrice: -1 })
       .limit(1);
 
