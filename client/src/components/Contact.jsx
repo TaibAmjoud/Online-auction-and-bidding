@@ -21,6 +21,14 @@ export default function Contact({ listing }) {
     };
     fetchOwner();
   }, [listing.userRef]);
+
+  const handleSendMessage = () => {
+    // Delay the message reset by a short amount of time
+    setTimeout(() => {
+      setMessage("");
+    }, 100);
+  };
+
   return (
     <>
       {owner && (
@@ -41,6 +49,7 @@ export default function Contact({ listing }) {
           <Link
             to={`mailto:${owner.email}?subject=Regarding ${listing.name}&body=${message}`}
             className="bg-slate-700 text-white text-center p-3 uppercase rounded-lg hover:opacity-65"
+            onClick={handleSendMessage}
           >
             Send Message
           </Link>
