@@ -2,11 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+
 body{
-    background-color: rgb(241, 245, 241);
+    background-color: rgb(233, 236, 238);
 }
-footer{
-    position: fixed;
+
+  #root {
+    position: relative;
+    min-height: 100vh;
+  }
+  
+  #content-wrap {
+    padding-bottom: 2.5rem;    /* Footer height */
+  }
+  
+  #footer {
+    position: absolute;
     bottom: 0;
     width: 100%;
-}
+    height: 0rem;            /* Footer height */
+  }

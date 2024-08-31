@@ -29,7 +29,7 @@ export default function About() {
         cherchiez à acquérir un bien rare ou à vendre un objet précieux,
         E-Enchères est là pour vous accompagner à chaque étape.
       </p>
-      <p className="mb-4 text-slate-700">
+      <p className="text-slate-700">
         Rejoignez dès maintenant notre communauté et découvrez une nouvelle
         manière de participer aux enchères, depuis le confort de votre maison.
         E-Enchères, c'est l'avenir des enchères en ligne, à portée de clic.

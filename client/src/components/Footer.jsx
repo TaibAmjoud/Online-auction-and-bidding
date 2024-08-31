@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Footer() {
   return (
-    <footer>
+    <footer id="footer">
       <div className="bg-neutral-100 flex justify-content-center justify-between p-4 border-bottom">
         <div className="ml-10 me-5 d-none d-lg-block font-semibold">
           <span>Get connected with me on social networks:</span>

@@ -114,7 +114,7 @@ export default function Listing() {
     <main>
       {loading && <p className="text-center my-7 text-2xl">Loading...</p>}
       {listing && !loading && !error && (
-        <div className="mt-3 mb-36">
+        <div className="mt-3">
           <Swiper navigation>
             {listing.imageUrls.map((url) => (
               <SwiperSlide key={url}>
