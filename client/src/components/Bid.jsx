@@ -20,17 +20,16 @@ export default function ({ listing, currentHighestBid }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if the bid is higher than the current highest bid
     if (formBid.bidingPrice <= listing.reservedPrice) {
-      setError(`Your bid must be higher than the starting price.`);
+      setError("Your bid must be higher than the starting price.");
       return;
     } else if (formBid.bidingPrice <= currentHighestBid) {
-      setError(`Your bid must be higher than the current highest bid.`);
+      setError("Your bid must be higher than the current highest bid.");
       return;
     }
 
+    setError(false);
     try {
-      setError(false);
       const res = await fetch("/api/biding/create", {
         method: "POST",
         headers: {
@@ -47,9 +46,8 @@ export default function ({ listing, currentHighestBid }) {
       if (data.success === false) {
         setError(data.message);
       } else {
-        formBid.bidingPrice = "";
-        setFormBid(...formBid);
-        setError("");
+        setFormBid({ bidingPrice: "" });
+        setError(false);
       }
     } catch (error) {
       setError(error.message);

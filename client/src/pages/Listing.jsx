@@ -20,15 +20,13 @@ export default function Listing() {
   const [bid, setBid] = useState(false);
   const [reloaded, setReloaded] = useState(false);
   const [winner, setWinner] = useState(null);
-  const [auctionEnded, setAuctionEnded] = useState(false); // Track auction end state
+  const [auctionEnded, setAuctionEnded] = useState(false);
   const params = useParams();
 
   useEffect(() => {
     const fetchListingAndBiding = async () => {
       try {
         setLoading(true);
-
-        // Fetch listing data
         const listingRes = await fetch(`/api/listing/get/${params.listingId}`);
         const listingData = await listingRes.json();
         if (listingData.success === false) {
@@ -38,7 +36,6 @@ export default function Listing() {
         }
         setListing(listingData);
 
-        // Fetch bidding data
         const bidingRes = await fetch(`/api/biding/get/${params.listingId}`);
         const bidingData = await bidingRes.json();
         if (bidingData.success === false) {
@@ -48,8 +45,6 @@ export default function Listing() {
         }
         setBiding(bidingData || []);
         setLoading(false);
-
-        // Determine highest bidder
         const highestBidDetails = bidingData.reduce(
           (highest, bid) => {
             if (bid.bidingPrice > highest.bidingPrice) {
@@ -62,7 +57,6 @@ export default function Listing() {
 
         const highestBidder = highestBidDetails.userRef;
         if (highestBidder) {
-          // Fetch winner data
           const winnerRes = await fetch(`/api/user/${highestBidder}`);
           const winnerData = await winnerRes.json();
           setWinner(winnerData);
@@ -102,7 +96,7 @@ export default function Listing() {
             ...prevListing,
             available: false,
           }));
-          setAuctionEnded(true); // Set auction ended state
+          setAuctionEnded(true);
         }
       } catch (error) {
         setError(error.message);
@@ -151,8 +145,17 @@ export default function Listing() {
                 onComplete={updateListingAvailability}
               >
                 <h1 className="text-xl font-semibold text-red-700">
-                  The bid is finished! - the Winner is{" "}
-                  {auctionEnded && winner ? winner.fullname : "No one"}
+                  The bid is finished!
+                  {currentUser && (
+                    <>
+                      {" "}
+                      - The Winner is{" "}
+                      {auctionEnded && winner
+                        ? winner.fullname.toUpperCase()
+                        : "No one"}
+                      .
+                    </>
+                  )}
                 </h1>
               </Countdown>
             </p>

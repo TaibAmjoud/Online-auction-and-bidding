@@ -23,7 +23,6 @@ export default function Contact({ listing }) {
   }, [listing.userRef]);
 
   const handleSendMessage = () => {
-    // Delay the message reset by a short amount of time
     setTimeout(() => {
       setMessage("");
     }, 100);
